@@ -19,7 +19,7 @@ unzipper <- function(directoryZipFiles,
                             recursive = TRUE,
                             pattern = "\\.zip$",
                             full.names = T)
-  lapply(listOfFiles, function(file){
+  lapply(listOfFiles, function(file) {
     folder <- gsub(".zip","", gsub(".*/","", file))
 
     dir.create(path = paste0(gsub("\\\\",
@@ -54,8 +54,8 @@ unzipper <- function(directoryZipFiles,
 kaplanMeierPlotPreparationDT <- function(targetIds,
                                          outcomeIds,
                                          directories,
-                                         kaplanMeierDataCsv){
-  unionAcrossDatabases <- lapply(directories, function(directory){
+                                         kaplanMeierDataCsv) {
+  unionAcrossDatabases <- lapply(directories, function(directory) {
     timeToEventTable <- data.table::fread(paste0(gsub("\\\\",
                                           '/',directory), "/", kaplanMeierDataCsv))  %>%
       subset(
@@ -103,8 +103,8 @@ prepareCovariatesData <- function(
                               cohortIds,
                               covariateName = "covariate.csv",
                               covariateValueName = "covariate_value.csv"
-                              ){
-  listOfDF <- lapply(listOfDirectories, function(directory){
+                              ) {
+  listOfDF <- lapply(listOfDirectories, function(directory) {
 
     covariate <- data.table::fread(paste0(gsub("\\\\",
                                                '/',directory), "/", covariateName))
@@ -120,7 +120,7 @@ prepareCovariatesData <- function(
         mean > 0
       )
 
-    if(!is.null(filterWindowIds)){
+    if(!is.null(filterWindowIds)) {
       covariatesForPlotting[,
                             window_id := data.table::fcase(
                               covariate_id %% 10 == 4 , 4,
@@ -130,9 +130,9 @@ prepareCovariatesData <- function(
                             )]
 
       covariatesForPlotting <- subset(covariatesForPlotting, window_id %in% filterWindowIds)
-    } else
+    } else {
       covariatesForPlotting
-
+    }
   })
   return(data.table::rbindlist(listOfDF))
 }
@@ -142,19 +142,19 @@ prepareCovariatesData <- function(
 prepareFeatureProportionData <- function(listOfDirectories,
                                         filterWindowIds = NULL,
                                         cohortIds){
-  listOfDF <- lapply(listOfDirectories, function(directory){
+  listOfDF <- lapply(listOfDirectories, function(directory) {
     fp <- data.table::fread(paste0(gsub("\\\\",
                                                '/',directory), "/", "feature_proportions.csv"))
     featureProportionsConsolidated <- fp %>%
       subset(cohort_id  %in% c(cohortIds) & mean > 0
       )
-    if(!is.null(filterWindowIds)){
+    if(!is.null(filterWindowIds)) {
       featureProportionsConsolidated <- subset(featureProportionsConsolidated,
                                                window_id %in% filterWindowIds)
-    } else{
+    } else {
       featureProportionsConsolidated
     }
-    })
+  })
   return(data.table::rbindlist(listOfDF))
 }
 

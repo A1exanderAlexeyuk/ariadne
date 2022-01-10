@@ -1,4 +1,4 @@
-#' Creates grid Kaplan-Meier Plot
+#' Creates grid Kaplan-Meier Plot outcome_id ~ database_id
 #'
 #' @export
 #'

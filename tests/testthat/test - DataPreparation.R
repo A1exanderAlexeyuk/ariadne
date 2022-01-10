@@ -47,7 +47,7 @@ test_that("Covariate Data Preparation", {
   dt <- dirs[c(1, 2)]
 
   out <- ariadne::prepareCovariatesData(
-    listOfDirectories,
+    listOfDirectories = dt,
     filterWindowIds = NULL,
     cohortIds = c(103, 112),
     covariateName = "covariate.csv",
