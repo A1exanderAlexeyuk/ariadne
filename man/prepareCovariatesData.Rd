@@ -4,7 +4,13 @@
 \alias{prepareCovariatesData}
 \title{Prepare covariate data}
 \usage{
-prepareCovariatesData(listOfDirectories, filterWindowIds = NULL, cohortIds)
+prepareCovariatesData(
+  listOfDirectories,
+  filterWindowIds = NULL,
+  cohortIds,
+  covariateName = "covariate.csv",
+  covariateValueName = "covariate_value.csv"
+)
 }
 \arguments{
 \item{listOfDirectories}{directories where stored covariate.csv and covariate_value.csv}
@@ -12,10 +18,24 @@ prepareCovariatesData(listOfDirectories, filterWindowIds = NULL, cohortIds)
 \item{filterWindowIds}{window_ids to filter}
 
 \item{cohortIds}{target cohort ids to filter}
+
+\item{covariateName}{name of csv contains covariate data (usually covariate.csv
+or covariate_ref.csv)}
+
+\item{covariateValueName}{name of csv contains covariate data (usually covariate_value.csv}
 }
 \value{
 data.table dataframe
 }
 \description{
 Prepare covariate data
+}
+\examples{
+data <- prepareCovariatesData(
+listOfDirectories = directiries,
+filterWindowIds = NULL,
+cohortIds = c(103, 112),
+covariateName = "covariate.csv",
+covariateValueName = "covariate_value.csv"
+)
 }

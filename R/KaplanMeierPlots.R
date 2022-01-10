@@ -9,8 +9,6 @@ gridKMplot <- function(
   ylab = "Probability",
   xlab = "Time in years",
   ggtheme = ggplot2::theme_bw(),
-  gridGroup1,
-  gridGroup2,
   savePlots = FALSE,
   directoryToSave,
   censor = FALSE,

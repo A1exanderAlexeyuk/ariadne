@@ -47,15 +47,12 @@ test_that("Covariate Data Preparation", {
   dt <- dirs[c(1, 2)]
 
   out <- ariadne::prepareCovariatesData(
+    listOfDirectories,
+    filterWindowIds = NULL,
     cohortIds = c(103, 112),
-    listOfDirectories = dt,
-    filterWindowIds = c(2, 3)
+    covariateName = "covariate.csv",
+    covariateValueName = "covariate_value.csv"
   )
-  expect_error(ariadne::prepareCovariatesData(
-    cohortIds = c(103, 112),
-    listOfDirectories = dt,
-    filterWindowIds = c(2, 3)
-  ), NA)
 
   expect_true(is.data.frame(out))
 
@@ -110,7 +107,7 @@ test_that("Prepare Feature Proportion Data", {
     cohortIds = c(103, 112)
   )
 
-  #expect_true(is.data.frame(out))
+  expect_true(is.data.frame(out))
 
   expect_gte(nrow(out), 1)
 

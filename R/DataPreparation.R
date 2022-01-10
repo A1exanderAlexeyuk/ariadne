@@ -76,6 +76,12 @@ kaplanMeierPlotPreparationDT <- function(targetIds,
 #'
 #' @param cohortIds target cohort ids to filter
 #'
+#' @param covariateName name of csv contains covariate data (usually covariate.csv
+#' or covariate_ref.csv)
+#'
+#' @param covariateValueName name of csv contains covariate data (usually covariate_value.csv
+#'
+#'
 #' @returns data.table dataframe
 #'
 #' @importFrom magrittr %>%
@@ -83,20 +89,37 @@ kaplanMeierPlotPreparationDT <- function(targetIds,
 #' @importFrom data.table :=
 #'
 #' @export
-#'
-prepareCovariatesData <- function(listOfDirectories,
+#' @examples
+#' data <- prepareCovariatesData(
+#' listOfDirectories = directiries,
+#' filterWindowIds = NULL,
+#' cohortIds = c(103, 112),
+#' covariateName = "covariate.csv",
+#' covariateValueName = "covariate_value.csv"
+#' )
+prepareCovariatesData <- function(
+                              listOfDirectories,
                               filterWindowIds = NULL,
-                              cohortIds){
+                              cohortIds,
+                              covariateName = "covariate.csv",
+                              covariateValueName = "covariate_value.csv"
+                              ){
   listOfDF <- lapply(listOfDirectories, function(directory){
+
     covariate <- data.table::fread(paste0(gsub("\\\\",
-                                               '/',directory), "/", "covariate.csv"))
-    covariate_value <- data.table::fread(paste0(gsub("\\\\",
-                                                     '/',directory), "/", "covariate_value.csv"))
+                                               '/',directory), "/", covariateName))
+    covariateValue <- data.table::fread(paste0(gsub("\\\\",
+                                                     '/',directory), "/", covariateValueName))
     covariatesForPlotting <- data.table::merge.data.table(x = covariate,
-                                                          y = covariate_value,
+                                                          y = covariateValue,
                                                           by = "covariate_id") %>%
-      subset(cohort_id  %in% c(cohortIds) & mean > 0
+      subset(
+        cohort_id  %in% c(cohortIds)
+      ) %>%
+      subset(
+        mean > 0
       )
+
     if(!is.null(filterWindowIds)){
       covariatesForPlotting[,
                             window_id := data.table::fcase(
@@ -151,6 +174,12 @@ prepareFeatureProportionData <- function(listOfDirectories,
 #'
 #' @export
 #'
+#' @examples
+#'
+#' dataF <- prepareCovariatesDataToPlotting(preparedCovariatesData = data,
+#'cohortIds = c(103, 112)
+#'
+#'
 prepareCovariatesDataToPlotting <- function(preparedCovariatesData,
                                             cohortIds
 ){
@@ -159,9 +188,12 @@ prepareCovariatesDataToPlotting <- function(preparedCovariatesData,
                                                         cohort_id == cohortIds[2]),
                                              y = subset(preparedCovariatesData,
                                                         cohort_id == cohortIds[1]),
-                                             by=c("covariate_id","database_id"),
-                                             all=FALSE) %>% data.table::setDT()
+                                             by = c("covariate_id",
+                                                  "database_id"),
+                                             all = FALSE) %>% data.table::setDT()
     dataToPlot[,
-               SMD := (mean.y - mean.x)/sqrt(mean.y*(1-mean.y)+ (mean.x*(1-mean.x))/2)
+               SMD := (mean.y - mean.x)/
+                 sqrt(mean.y*(1-mean.y) +
+                        (mean.x*(1-mean.x))/2)
               ]
 }
