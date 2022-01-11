@@ -2,8 +2,8 @@ library(testthat)
 
 test_that("Unzipper", {
 
-  dir <- "C:/Users/Alex/D/projects/Regeneron/ariadne/dataForTests/zipTest"
-  zipDir <- "C:/Users/Alex/D/projects/Regeneron/ariadne/dataForTests"
+  dir <- "C:/Users/Alex/D/projects/PIONEER-Odysseus/ariadne/dataForTests/zipTest"
+  zipDir <- "C:/Users/Alex/D/projects/PIONEER-Odysseus/ariadne/dataForTests"
   expect_true(!dir.exists(dir))
 
   ariadne::unzipper(directoryZipFiles = zipDir,
@@ -11,14 +11,14 @@ test_that("Unzipper", {
 
   )
   expect_true(dir.exists(dir))
-  unlink(dir, recursive = TRUE)
+  unlink(dir, recursive = T)
 
 })
 
 
 
 test_that("kaplanMeierPlotPreparationDT", {
-  dirs <- list.dirs(path = "C:/Users/Alex/D/projects/Regeneron/ariadne/dataForTests/KMTest",
+  dirs <- list.dirs(path = "C:/Users/Alex/D/projects/PIONEER-Odysseus/ariadne/dataForTests/KMTest",
                     full.names = T,
                     recursive = F)
 
@@ -48,7 +48,7 @@ test_that("Covariate Data Preparation", {
 
   out <- ariadne::prepareCovariatesData(
     listOfDirectories = dt,
-    filterWindowIds = NULL,
+    filterWindowIds = c(1,2),
     cohortIds = c(103, 112),
     covariateName = "covariate.csv",
     covariateValueName = "covariate_value.csv"

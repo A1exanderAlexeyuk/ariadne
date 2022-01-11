@@ -50,18 +50,22 @@ unzipper <- function(directoryZipFiles,
 #' @export
 #'
 #' @importFrom magrittr %>%
-#'
+#' @examples
+#' data <- kaplanMeierPlotPreparationDT(
+#' targetIds = c(103,106),
+#' outcomeIds = c(203, 212),
+#' directories = dirs,
+#' kaplanMeierDataCsv = "cohort_time_to_event.csv"
+#' )
 kaplanMeierPlotPreparationDT <- function(targetIds,
                                          outcomeIds,
                                          directories,
-                                         kaplanMeierDataCsv) {
+                                         kaplanMeierDataCsv = "cohort_time_to_event.csv") {
   unionAcrossDatabases <- lapply(directories, function(directory) {
     timeToEventTable <- data.table::fread(paste0(gsub("\\\\",
-                                          '/',directory), "/", kaplanMeierDataCsv))  %>%
-      subset(
-        target_id %in% targetIds &
-          outcome_id %in% outcomeIds
-      )
+                                          '/',directory), "/", kaplanMeierDataCsv))
+    return(timeToEventTable[target_id %in% targetIds & outcome_id %in% outcomeIds, ])
+
 
   })
   data.table::rbindlist(unionAcrossDatabases)
@@ -112,14 +116,10 @@ prepareCovariatesData <- function(
                                                      '/',directory), "/", covariateValueName))
     covariatesForPlotting <- data.table::merge.data.table(x = covariate,
                                                           y = covariateValue,
-                                                          by = "covariate_id") %>%
-      subset(
-        cohort_id  %in% c(cohortIds)
-      ) %>%
-      subset(
-        mean > 0
-      )
-
+                                                          by = "covariate_id")
+    covariatesForPlotting <- covariatesForPlotting[cohort_id  %in% cohortIds &
+                                                     mean > 0,
+                                                   ]
     if(!is.null(filterWindowIds)) {
       covariatesForPlotting[,
                             window_id := data.table::fcase(
@@ -129,7 +129,7 @@ prepareCovariatesData <- function(
                               covariate_id %% 10 == 1 , 1
                             )]
 
-      covariatesForPlotting <- subset(covariatesForPlotting, window_id %in% filterWindowIds)
+      covariatesForPlotting <- covariatesForPlotting[window_id %in% filterWindowIds, ]
     } else {
       covariatesForPlotting
     }
@@ -145,12 +145,16 @@ prepareFeatureProportionData <- function(listOfDirectories,
   listOfDF <- lapply(listOfDirectories, function(directory) {
     fp <- data.table::fread(paste0(gsub("\\\\",
                                                '/',directory), "/", "feature_proportions.csv"))
-    featureProportionsConsolidated <- fp %>%
-      subset(cohort_id  %in% c(cohortIds) & mean > 0
-      )
+    featureProportionsConsolidated <- fp[
+      cohort_id  %in% cohortIds & mean > 0,
+    ]
+
     if(!is.null(filterWindowIds)) {
-      featureProportionsConsolidated <- subset(featureProportionsConsolidated,
-                                               window_id %in% filterWindowIds)
+      featureProportionsConsolidated <- featureProportionsConsolidated[window_id %in%
+                                                                         filterWindowIds,
+
+      ]
+
     } else {
       featureProportionsConsolidated
     }
@@ -184,10 +188,10 @@ prepareCovariatesDataToPlotting <- function(preparedCovariatesData,
                                             cohortIds
 ){
 
-  dataToPlot <- data.table::merge.data.table(x = subset(preparedCovariatesData,
-                                                        cohort_id == cohortIds[2]),
-                                             y = subset(preparedCovariatesData,
-                                                        cohort_id == cohortIds[1]),
+  dataToPlot <- data.table::merge.data.table(x = preparedCovariatesData[
+                                                        cohort_id == cohortIds[2], ],
+                                             y = preparedCovariatesData[
+                                                        cohort_id == cohortIds[1], ],
                                              by = c("covariate_id",
                                                   "database_id"),
                                              all = FALSE) %>% data.table::setDT()
