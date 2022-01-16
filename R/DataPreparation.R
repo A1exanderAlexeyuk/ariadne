@@ -174,6 +174,8 @@ prepareFeatureProportionData <- function(listOfDirectories,
 #'
 #' @param targetCogortId2  target cohort id 2
 #'
+#' @param writeCsv boolean if TRUE write csv in working directory
+#'
 #'
 #' @returns  merged data table with calculated SMD (SMD column)
 #'
@@ -188,19 +190,28 @@ prepareFeatureProportionData <- function(listOfDirectories,
 #'
 #'
 prepareCovariatesDataToPlotting <- function(preparedCovariatesData,
-                                            cohortIds
-){
+                                            cohortIds,
+                                            writeCsv = FALSE
+) {
 
   dataToPlot <- preparedCovariatesData[cohort_id == cohortIds[2], ][
     preparedCovariatesData[cohort_id == cohortIds[1], ], on = .(
       covariate_id,
       database_id
       ), nomatch = NULL
-  ]
+  ] %>%
+    data.table::setDT()
 
   dataToPlot[,
                SMD := (i.mean - mean)/
                  sqrt(i.mean * (1 - i.mean) +
                         (mean * (1 - mean)) / 2)
               ]
+  if(writeCsv) {
+    data.table::fwrite(
+      x = dataToPlot,
+      file = "PreparedCovariatesDataToPlotting.csv"
+    )
+  }
+  return(dataToPlot)
 }
