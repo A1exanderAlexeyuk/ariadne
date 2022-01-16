@@ -89,7 +89,7 @@ test_that("Prepare Feature Proportion Data", {
 })
 
 
-test_that("Prepare Feature Proportion Data", {
+test_that("Prepare Covariate Data For Plotting", {
   dirs <- list.dirs(path = "C:/Users/Alex/D/projects/PIONEER-Odysseus/UnzippedData",
                     full.names = T,
                     recursive = F)

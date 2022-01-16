@@ -111,12 +111,15 @@ prepareCovariatesData <- function(
   listOfDF <- lapply(listOfDirectories, function(directory) {
 
     covariate <- data.table::fread(paste0(gsub("\\\\",
-                                               '/',directory), "/", covariateName))
+                                               '/',directory), "/", covariateName)) %>%
+      data.table::setkey(covariate_id)
     covariateValue <- data.table::fread(paste0(gsub("\\\\",
-                                                     '/',directory), "/", covariateValueName))
-    covariatesForPlotting <- data.table::merge.data.table(x = covariate,
-                                                          y = covariateValue,
-                                                          by = "covariate_id")
+                                                     '/',directory), "/", covariateValueName)) %>%
+      data.table::setkey(covariate_id)
+
+
+    covariatesForPlotting <- covariate[covariateValue, nomatch = NULL]
+
     covariatesForPlotting <- covariatesForPlotting[cohort_id  %in% cohortIds &
                                                      mean > 0,
                                                    ]
@@ -188,16 +191,16 @@ prepareCovariatesDataToPlotting <- function(preparedCovariatesData,
                                             cohortIds
 ){
 
-  dataToPlot <- data.table::merge.data.table(x = preparedCovariatesData[
-                                                        cohort_id == cohortIds[2], ],
-                                             y = preparedCovariatesData[
-                                                        cohort_id == cohortIds[1], ],
-                                             by = c("covariate_id",
-                                                  "database_id"),
-                                             all = FALSE) %>% data.table::setDT()
-    dataToPlot[,
-               SMD := (mean.y - mean.x)/
-                 sqrt(mean.y*(1-mean.y) +
-                        (mean.x*(1-mean.x))/2)
+  dataToPlot <- preparedCovariatesData[cohort_id == cohortIds[2], ][
+    preparedCovariatesData[cohort_id == cohortIds[1], ], on = .(
+      covariate_id,
+      database_id
+      ), nomatch = NULL
+  ]
+
+  dataToPlot[,
+               SMD := (i.mean - mean)/
+                 sqrt(i.mean * (1 - i.mean) +
+                        (mean * (1 - mean)) / 2)
               ]
 }
